@@ -1,3 +1,12 @@
+enum DOMPointers {
+  TEMPLATE_EL_ID = '#project-input',
+  RENDER_EL_ID = '#app',
+  ELEMENT_ID = 'user-input',
+  TITLE_ID = '#title',
+  DESCRIPTION_ID = '#description',
+  PEOPLE_ID = '#people',
+}
+
 // Autobind decorator
 const Autobind = (_: any, _2: string, descriptor: PropertyDescriptor) => {
   const initialMethod = descriptor.value;
@@ -20,25 +29,27 @@ class ProjectInput {
   peopleInputEl: HTMLInputElement;
 
   constructor() {
-    this.templateEl = document.getElementById(
-      'project-input'
+    this.templateEl = document.querySelector(
+      DOMPointers.TEMPLATE_EL_ID
     ) as HTMLTemplateElement;
-    this.renderEl = document.getElementById('app') as HTMLDivElement;
+    this.renderEl = document.querySelector(
+      DOMPointers.RENDER_EL_ID
+    ) as HTMLDivElement;
 
     const importedNode = document.importNode(this.templateEl.content, true);
     this.element = importedNode.firstElementChild as HTMLFormElement;
-    this.element.id = 'user-input';
+    this.element.id = DOMPointers.ELEMENT_ID;
 
     this.titleInputEl = this.element.querySelector(
-      '#title'
+      DOMPointers.TITLE_ID
     ) as HTMLInputElement;
 
     this.descriptionInputEl = this.element.querySelector(
-      '#description'
+      DOMPointers.DESCRIPTION_ID
     ) as HTMLInputElement;
 
     this.peopleInputEl = this.element.querySelector(
-      '#people'
+      DOMPointers.PEOPLE_ID
     ) as HTMLInputElement;
 
     this.configure();

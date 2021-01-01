@@ -52,11 +52,39 @@ class ProjectInput {
   @Autobind
   private submitHandler(event: Event) {
     event.preventDefault();
-    console.log(this.titleInputEl.value);
+    const userInput = this.getUserInput();
+    if (Array.isArray(userInput)) {
+      const [title, description, people] = userInput;
+      console.log(title, description, people);
+      this.clearForm();
+    }
   }
 
   private configure() {
     this.element.addEventListener('submit', this.submitHandler);
+  }
+
+  private getUserInput(): [string, string, number] | void {
+    const title = this.titleInputEl.value;
+    const description = this.descriptionInputEl.value;
+    const people = this.peopleInputEl.value;
+
+    if (
+      title.trim().length === 0 ||
+      description.trim().length === 0 ||
+      people.trim().length === 0
+    ) {
+      alert('Invalid input');
+      return;
+    } else {
+      return [title, description, +people];
+    }
+  }
+
+  private clearForm() {
+    this.titleInputEl.value = '';
+    this.descriptionInputEl.value = '';
+    this.peopleInputEl.value = '';
   }
 }
 

@@ -5,6 +5,7 @@ enum DOMPointers {
   TITLE_ID = '#title',
   DESCRIPTION_ID = '#description',
   PEOPLE_ID = '#people',
+  PROJECT_LIST_ID = '#project-list',
 }
 
 // Validation
@@ -153,4 +154,42 @@ class ProjectInput {
   }
 }
 
+// ProjectList class
+class ProjectList {
+  templateEl: HTMLTemplateElement;
+  renderEl: HTMLDivElement;
+  element: HTMLElement;
+
+  constructor(private projectStatus: 'active' | 'finished') {
+    this.templateEl = document.querySelector(
+      DOMPointers.PROJECT_LIST_ID
+    ) as HTMLTemplateElement;
+    this.renderEl = document.querySelector(
+      DOMPointers.RENDER_EL_ID
+    ) as HTMLDivElement;
+
+    const importedNode = document.importNode(this.templateEl.content, true);
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${this.projectStatus}-projects`;
+
+    this.append();
+    this.renderContent();
+  }
+
+  private renderContent() {
+    const listId = `${this.projectStatus}-projects-list`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector(
+      'h2'
+    )!.textContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
+  }
+
+  private append() {
+    this.renderEl.insertAdjacentElement('beforeend', this.element);
+  }
+}
+
+// Calls
 const projectInput = new ProjectInput();
+const activeProjectList = new ProjectList('active');
+const finishedProjectList = new ProjectList('finished');

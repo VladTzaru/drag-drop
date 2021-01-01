@@ -8,8 +8,8 @@ enum DOMPointers {
 }
 
 // Validation
-interface Validate {
-  value: string | number;
+interface Validate<T> {
+  value: T;
   required?: boolean;
   minLength?: number;
   maxLength?: number;
@@ -17,7 +17,7 @@ interface Validate {
   max?: number;
 }
 
-const validate = (input: Validate) => {
+const validate = (input: Validate<string | number>) => {
   let isValid = true;
   if (input.required) {
     isValid = isValid && input.value.toString().trim().length !== 0;
@@ -113,20 +113,21 @@ class ProjectInput {
   private getUserInput(): [string, string, number] | void {
     const title = this.titleInputEl.value;
     const description = this.descriptionInputEl.value;
-    const people = this.peopleInputEl.value;
+    const people = +this.peopleInputEl.value;
 
-    const titleValidation: Validate = {
+    const titleValidation: Validate<string> = {
       value: title,
       required: true,
+      minLength: 3,
     };
 
-    const descriptionValidation: Validate = {
+    const descriptionValidation: Validate<string> = {
       value: description,
       required: true,
       minLength: 5,
     };
 
-    const peopleValidation: Validate = {
+    const peopleValidation: Validate<number> = {
       value: people,
       required: true,
       min: 1,
@@ -141,7 +142,7 @@ class ProjectInput {
       alert('Invalid input');
       return;
     } else {
-      return [title, description, +people];
+      return [title, description, people];
     }
   }
 

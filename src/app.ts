@@ -7,6 +7,41 @@ enum DOMPointers {
   PEOPLE_ID = '#people',
 }
 
+// Validation
+interface Validate {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+const validate = (input: Validate) => {
+  let isValid = true;
+  if (input.required) {
+    isValid = isValid && input.value.toString().trim().length !== 0;
+  }
+  // != covers both undefined & null
+  if (input.minLength != null && typeof input.value === 'string') {
+    isValid = isValid && input.value.length >= input.minLength;
+  }
+
+  if (input.maxLength != null && typeof input.value === 'string') {
+    isValid = isValid && input.value.length <= input.maxLength;
+  }
+
+  if (input.min != null && typeof input.value === 'number') {
+    isValid = isValid && input.value >= input.min;
+  }
+
+  if (input.max != null && typeof input.value === 'number') {
+    isValid = isValid && input.value <= input.max;
+  }
+
+  return isValid;
+};
+
 // Autobind decorator
 const Autobind = (_: any, _2: string, descriptor: PropertyDescriptor) => {
   const initialMethod = descriptor.value;
@@ -80,10 +115,28 @@ class ProjectInput {
     const description = this.descriptionInputEl.value;
     const people = this.peopleInputEl.value;
 
+    const titleValidation: Validate = {
+      value: title,
+      required: true,
+    };
+
+    const descriptionValidation: Validate = {
+      value: description,
+      required: true,
+      minLength: 5,
+    };
+
+    const peopleValidation: Validate = {
+      value: people,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
     if (
-      title.trim().length === 0 ||
-      description.trim().length === 0 ||
-      people.trim().length === 0
+      !validate(titleValidation) ||
+      !validate(descriptionValidation) ||
+      !validate(peopleValidation)
     ) {
       alert('Invalid input');
       return;

@@ -17,10 +17,28 @@ interface Validate<T> {
   min?: number;
   max?: number;
 }
+
+// Project type
+
+enum ProjectStatus {
+  ACTIVE,
+  FINISHED,
+}
+
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {}
+}
+
 // Project state management (Singleton object)
 class ProjectState {
   private listeners: any[] = [];
-  private projects: any[] = [];
+  private projects: Project[] = [];
   private static instance: ProjectState;
 
   private constructor() {}
@@ -38,12 +56,14 @@ class ProjectState {
   }
 
   addProject(title: string, description: string, people: number) {
-    const newProject = {
-      id: Math.random().toString(),
+    const newProject = new Project(
+      Math.random().toString(),
       title,
       description,
       people,
-    };
+      ProjectStatus.ACTIVE
+    );
+
     this.projects.push(newProject);
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
@@ -194,7 +214,7 @@ class ProjectList {
   templateEl: HTMLTemplateElement;
   renderEl: HTMLDivElement;
   element: HTMLElement;
-  assignedProjects: any[];
+  assignedProjects: Project[];
 
   constructor(private projectStatus: 'active' | 'finished') {
     this.templateEl = document.querySelector(

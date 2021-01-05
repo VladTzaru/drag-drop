@@ -18,6 +18,39 @@ interface Validate<T> {
   max?: number;
 }
 
+// Component base class (Abstract class cannot be instantiated)
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateEl: HTMLTemplateElement;
+  renderEl: T;
+  element: U;
+
+  constructor(
+    templateID: string,
+    renderElemID: string,
+    insertAtStart: boolean,
+    newElemID?: string
+  ) {
+    this.templateEl = document.querySelector(templateID) as HTMLTemplateElement;
+    this.renderEl = document.querySelector(renderElemID) as T;
+    const importedNode = document.importNode(this.templateEl.content, true);
+    this.element = importedNode.firstElementChild as U;
+
+    if (newElemID) this.element.id = newElemID;
+
+    this.append(insertAtStart);
+  }
+
+  private append(insertAtStart: boolean) {
+    this.renderEl.insertAdjacentElement(
+      insertAtStart ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+
+  abstract configure(): void | undefined; // Abstract methods require all classes that inherit to have these methods
+  abstract renderContent(): void | undefined;
+}
+
 // Project type
 
 enum ProjectStatus {
@@ -114,25 +147,18 @@ const Autobind = (_: any, _2: string, descriptor: PropertyDescriptor) => {
 };
 
 // ProjectInput class
-class ProjectInput {
-  templateEl: HTMLTemplateElement;
-  renderEl: HTMLDivElement;
-  element: HTMLFormElement;
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   titleInputEl: HTMLInputElement;
   descriptionInputEl: HTMLInputElement;
   peopleInputEl: HTMLInputElement;
 
   constructor() {
-    this.templateEl = document.querySelector(
-      DOMPointers.TEMPLATE_EL_ID
-    ) as HTMLTemplateElement;
-    this.renderEl = document.querySelector(
-      DOMPointers.RENDER_EL_ID
-    ) as HTMLDivElement;
-
-    const importedNode = document.importNode(this.templateEl.content, true);
-    this.element = importedNode.firstElementChild as HTMLFormElement;
-    this.element.id = DOMPointers.ELEMENT_ID;
+    super(
+      DOMPointers.TEMPLATE_EL_ID,
+      DOMPointers.RENDER_EL_ID,
+      true,
+      DOMPointers.ELEMENT_ID
+    );
 
     this.titleInputEl = this.element.querySelector(
       DOMPointers.TITLE_ID
@@ -147,12 +173,13 @@ class ProjectInput {
     ) as HTMLInputElement;
 
     this.configure();
-    this.append();
   }
 
-  private append() {
-    this.renderEl.insertAdjacentElement('afterbegin', this.element);
+  configure() {
+    this.element.addEventListener('submit', this.submitHandler);
   }
+
+  renderContent() {}
 
   @Autobind
   private submitHandler(event: Event) {
@@ -163,10 +190,6 @@ class ProjectInput {
       projectState.addProject(title, description, people);
       this.clearForm();
     }
-  }
-
-  private configure() {
-    this.element.addEventListener('submit', this.submitHandler);
   }
 
   private getUserInput(): [string, string, number] | void {
@@ -210,39 +233,6 @@ class ProjectInput {
     this.descriptionInputEl.value = '';
     this.peopleInputEl.value = '';
   }
-}
-
-// Component base class (Abstract class cannot be instantiated)
-abstract class Component<T extends HTMLElement, U extends HTMLElement> {
-  templateEl: HTMLTemplateElement;
-  renderEl: T;
-  element: U;
-
-  constructor(
-    templateID: string,
-    renderElemID: string,
-    insertAtStart: boolean,
-    newElemID?: string
-  ) {
-    this.templateEl = document.querySelector(templateID) as HTMLTemplateElement;
-    this.renderEl = document.querySelector(renderElemID) as T;
-    const importedNode = document.importNode(this.templateEl.content, true);
-    this.element = importedNode.firstElementChild as U;
-
-    if (newElemID) this.element.id = newElemID;
-
-    this.append(insertAtStart);
-  }
-
-  private append(insertAtStart: boolean) {
-    this.renderEl.insertAdjacentElement(
-      insertAtStart ? 'afterbegin' : 'beforeend',
-      this.element
-    );
-  }
-
-  abstract configure(): void; // Abstract methods require all classes that inherit to have these methods
-  abstract renderContent(): void;
 }
 
 // ProjectList class

@@ -246,39 +246,20 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 // ProjectList class
-class ProjectList {
-  templateEl: HTMLTemplateElement;
-  renderEl: HTMLDivElement;
-  element: HTMLElement;
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
 
   constructor(private projectStatus: 'active' | 'finished') {
-    this.templateEl = document.querySelector(
-      DOMPointers.PROJECT_LIST_ID
-    ) as HTMLTemplateElement;
-    this.renderEl = document.querySelector(
-      DOMPointers.RENDER_EL_ID
-    ) as HTMLDivElement;
-
-    const importedNode = document.importNode(this.templateEl.content, true);
-    this.element = importedNode.firstElementChild as HTMLElement;
-    this.element.id = `${this.projectStatus}-projects`;
+    super(
+      DOMPointers.PROJECT_LIST_ID,
+      DOMPointers.RENDER_EL_ID,
+      false,
+      `${projectStatus}-projects`
+    );
 
     this.assignedProjects = [];
 
-    projectState.addListener((projects: Project[]) => {
-      const filteredProjects = projects.filter((project) => {
-        if (this.projectStatus === 'active') {
-          return project.status === ProjectStatus.ACTIVE;
-        } else {
-          return project.status === ProjectStatus.FINISHED;
-        }
-      });
-      this.assignedProjects = filteredProjects;
-      this.renderProjects();
-    });
-
-    this.append();
+    this.configure();
     this.renderContent();
   }
 
@@ -294,16 +275,26 @@ class ProjectList {
     }
   }
 
-  private renderContent() {
+  configure() {
+    projectState.addListener((projects: Project[]) => {
+      const filteredProjects = projects.filter((project) => {
+        if (this.projectStatus === 'active') {
+          return project.status === ProjectStatus.ACTIVE;
+        } else {
+          return project.status === ProjectStatus.FINISHED;
+        }
+      });
+      this.assignedProjects = filteredProjects;
+      this.renderProjects();
+    });
+  }
+
+  renderContent() {
     const listId = `${this.projectStatus}-projects-list`;
     this.element.querySelector('ul')!.id = listId;
     this.element.querySelector(
       'h2'
     )!.textContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
-  }
-
-  private append() {
-    this.renderEl.insertAdjacentElement('beforeend', this.element);
   }
 }
 

@@ -18,6 +18,13 @@ interface Validate<T> {
   max?: number;
 }
 
+abstract class State<T> {
+  protected listeners: Listener<T>[] = [];
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
+
 // Component base class (Abstract class cannot be instantiated)
 abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateEl: HTMLTemplateElement;
@@ -47,8 +54,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     );
   }
 
-  abstract configure(): void | undefined; // Abstract methods require all classes that inherit to have these methods
-  abstract renderContent(): void | undefined;
+  abstract configure(): void; // Abstract methods require all classes that inherit to have these methods
+  abstract renderContent(): void;
 }
 
 // Project type
@@ -70,14 +77,16 @@ class Project {
 
 // Project state management (Singleton object)
 
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
 
-class ProjectState {
-  private listeners: Listener[] = [];
+class ProjectState extends State<Project> {
+  listeners: Listener<Project>[] = [];
   private projects: Project[] = [];
   private static instance: ProjectState;
 
-  private constructor() {}
+  private constructor() {
+    super();
+  }
 
   static getInstance() {
     if (this.instance) {
@@ -87,7 +96,7 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFn: Listener) {
+  addListener(listenerFn: Listener<Project>) {
     this.listeners.push(listenerFn);
   }
 

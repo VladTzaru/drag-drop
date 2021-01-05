@@ -212,6 +212,39 @@ class ProjectInput {
   }
 }
 
+// Component base class (Abstract class cannot be instantiated)
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateEl: HTMLTemplateElement;
+  renderEl: T;
+  element: U;
+
+  constructor(
+    templateID: string,
+    renderElemID: string,
+    insertAtStart: boolean,
+    newElemID?: string
+  ) {
+    this.templateEl = document.querySelector(templateID) as HTMLTemplateElement;
+    this.renderEl = document.querySelector(renderElemID) as T;
+    const importedNode = document.importNode(this.templateEl.content, true);
+    this.element = importedNode.firstElementChild as U;
+
+    if (newElemID) this.element.id = newElemID;
+
+    this.append(insertAtStart);
+  }
+
+  private append(insertAtStart: boolean) {
+    this.renderEl.insertAdjacentElement(
+      insertAtStart ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+
+  abstract configure(): void; // Abstract methods require all classes that inherit to have these methods
+  abstract renderContent(): void;
+}
+
 // ProjectList class
 class ProjectList {
   templateEl: HTMLTemplateElement;

@@ -6,6 +6,7 @@ enum DOMPointers {
   DESCRIPTION_ID = '#description',
   PEOPLE_ID = '#people',
   PROJECT_LIST_ID = '#project-list',
+  SINGLE_PROJECT_ID = '#single-project',
 }
 
 // Validation
@@ -244,6 +245,27 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   }
 }
 
+// ProjectItem class
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+
+  constructor(hostId: string, project: Project) {
+    super(DOMPointers.SINGLE_PROJECT_ID, hostId, false, project.id);
+    this.project = project;
+    this.configure();
+    this.renderContent();
+  }
+
+  configure() {}
+  renderContent() {
+    this.element.querySelector('h2')!.textContent = this.project.title;
+    this.element.querySelector(
+      'h3'
+    )!.textContent = this.project.people.toString();
+    this.element.querySelector('p')!.textContent = this.project.description;
+  }
+}
+
 // ProjectList class
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
@@ -268,9 +290,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     )! as HTMLUListElement;
     listEl.innerHTML = '';
     for (const project of this.assignedProjects) {
-      const listItem = document.createElement('li');
-      listItem.textContent = project.title;
-      listEl.appendChild(listItem);
+      new ProjectItem(`#${this.element.querySelector('ul')!.id}`, project);
     }
   }
 
